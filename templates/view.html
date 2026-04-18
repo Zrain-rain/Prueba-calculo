@@ -1,39 +1,54 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ver Alumnos</title>
-</head>
-<body>
-    <h1>Lista de Alumnos y Promedios</h1>
-    {% if estudiantes %}
-    <table border="1">
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Nota 1</th>
-                <th>Nota 2</th>
-                <th>Nota 3</th>
-                <th>Promedio</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for estudiante in estudiantes %}
-            <tr>
-                <td>{{ estudiante[0] }}</td>
-                <td>{{ estudiante[1] }}</td>
-                <td>{{ estudiante[2] }}</td>
-                <td>{{ estudiante[3] }}</td>
-                <td>{{ estudiante[4] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-    <p>No hay alumnos registrados aún.</p>
-    {% endif %}
-    <br>
-    <a href="{{ url_for('index') }}">Volver al Inicio</a>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}Ver Alumnos - Sistema de Notas OTEC{% endblock %}
+
+{% block content %}
+    <section class="card fade-in">
+        <h2 class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            Listado Completo de Alumnos
+        </h2>
+        
+        {% if estudiantes %}
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Nota 1</th>
+                            <th>Nota 2</th>
+                            <th>Nota 3</th>
+                            <th>Promedio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for estudiante in estudiantes %}
+                            <tr>
+                                <td style="font-weight: 500;">{{ estudiante[0] }}</td>
+                                <td>{{ estudiante[1] }}</td>
+                                <td>{{ estudiante[2] }}</td>
+                                <td>{{ estudiante[3] }}</td>
+                                <td>
+                                    <span class="badge-promedio {% if estudiante[4] >= 4.0 %}promedio-aprobado{% else %}promedio-reprobado{% endif %}">
+                                        {{ estudiante[4] }}
+                                    </span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 3rem 0; color: var(--text-muted);">
+                <p>No hay alumnos registrados aún.</p>
+            </div>
+        {% endif %}
+        
+        <div style="margin-top: 1.5rem; display: flex; justify-content: flex-start;">
+            <a href="{{ url_for('index') }}" class="nav-link" style="display: flex; align-items: center; gap: 0.5rem;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Volver al Inicio
+            </a>
+        </div>
+    </section>
+{% endblock %}

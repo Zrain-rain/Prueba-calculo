@@ -9,38 +9,60 @@ db_config = {
     'host': 'andy.cl',
     'user': 'curso',
     'password': 'aiep',
-    'database': 'curso'
+    'database': 'curso',
+    'port': 3306,
+    'connect_timeout': 5  # Tiempo máximo de espera para conectar (segundos)
 }
 
+
 def get_db_connection():
-    return mysql.connector.connect(**db_config)
+    try:
+        # Intentar conexión con tiempo de espera para evitar que la página "no cargue"
+        conn = mysql.connector.connect(**db_config)
+        
+        # Asegurarse de que la tabla exista
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS alumnos (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                nombre VARCHAR(255) NOT NULL,
+                nota1 FLOAT NOT NULL,
+                nota2 FLOAT NOT NULL,
+                nota3 FLOAT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        conn.commit()
+        cursor.close()
+        return conn
+    except mysql.connector.Error as err:
+        print(f"Error de conexión a la base de datos: {err}")
+        return None
+
 
 @app.route('/')
 def index():
     estudiantes = []
-    error = None
-    conn = None
-    cursor = None
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT nombre, nota1, nota2, nota3, ROUND((nota1 + nota2 + nota3)/3, 2) as promedio FROM alumnos")
-        estudiantes = cursor.fetchall()
-    except mysql.connector.Error as err:
-        error = f"Error de base de datos: {err}"
-        flash(error, 'error')
-    finally:
-        if cursor:
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT nombre, nota1, nota2, nota3, ROUND((nota1 + nota2 + nota3)/3, 2) as promedio FROM alumnos'
+            )
+            estudiantes = cursor.fetchall()
             cursor.close()
-        if conn:
             conn.close()
+        except mysql.connector.Error as err:
+            flash(f'Error al leer datos: {err}', 'error')
+    else:
+        flash('No se pudo establecer conexión con la base de datos externa. Revisa tu conexión a internet.', 'error')
+
     return render_template('index.html', estudiantes=estudiantes)
 
-@app.route('/add', methods=['GET', 'POST'])
-def add_student():
-    if request.method == 'GET':
-        return redirect(url_for('index'))
 
+@app.route('/add', methods=['POST'])
+def add_student():
     nombre = request.form.get('nombre', '').strip()
     nota1 = request.form.get('nota1', '')
     nota2 = request.form.get('nota2', '')
@@ -58,47 +80,46 @@ def add_student():
         flash('Las notas deben ser números válidos.', 'error')
         return redirect(url_for('index'))
 
-    conn = None
-    cursor = None
-    try:
-        conn = get_db_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO alumnos (nombre, nota1, nota2, nota3) VALUES (%s, %s, %s, %s)",
-            (nombre, nota1, nota2, nota3)
-        )
-        conn.commit()
-        flash('Alumno agregado correctamente.', 'success')
-    except mysql.connector.Error as err:
-        flash(f'Error al guardar en la base de datos: {err}', 'error')
-    finally:
-        if cursor:
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                'INSERT INTO alumnos (nombre, nota1, nota2, nota3) VALUES (%s, %s, %s, %s)',
+                (nombre, nota1, nota2, nota3)
+            )
+            conn.commit()
             cursor.close()
-        if conn:
             conn.close()
+            flash('Alumno agregado correctamente.', 'success')
+        except mysql.connector.Error as err:
+            flash(f'Error al guardar en la base de datos: {err}', 'error')
+    else:
+        flash('Error de conexión: No se pudo registrar el alumno.', 'error')
 
     return redirect(url_for('index'))
+
 
 @app.route('/view')
 def view_students():
     estudiantes = []
-    conn = None
-    cursor = None
-    try:
-        conn = mysql.connector.connect(**db_config)
-        cursor = conn.cursor()
-        cursor.execute("SELECT nombre, nota1, nota2, nota3, ROUND((nota1 + nota2 + nota3)/3, 2) as promedio FROM alumnos")
-        estudiantes = cursor.fetchall()
-    except mysql.connector.Error as err:
-        print(f"Error: {err}")
-        # Podrías mostrar un mensaje de error en la plantilla
-    finally:
-        if cursor:
+    conn = get_db_connection()
+    if conn:
+        try:
+            cursor = conn.cursor()
+            cursor.execute(
+                'SELECT nombre, nota1, nota2, nota3, ROUND((nota1 + nota2 + nota3)/3, 2) as promedio FROM alumnos'
+            )
+            estudiantes = cursor.fetchall()
             cursor.close()
-        if conn:
             conn.close()
-    
+        except mysql.connector.Error as err:
+            flash(f'Error al cargar los alumnos: {err}', 'error')
+    else:
+        flash('Error de conexión al cargar el listado.', 'error')
+
     return render_template('view.html', estudiantes=estudiantes)
 
+
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=8080)
