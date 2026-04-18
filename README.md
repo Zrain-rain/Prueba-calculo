@@ -23,7 +23,7 @@ La base de datos ya está configurada en el código con los siguientes datos:
 - Usuario: curso
 - Contraseña: aiep
 
-La tabla `estudiantes` debe tener las columnas: `nombre`, `nota1`, `nota2`, `nota3`.
+La tabla `alumnos` debe tener las columnas: `nombre`, `nota1`, `nota2`, `nota3`.
 
 ## Ejecución
 

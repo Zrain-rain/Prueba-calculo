@@ -24,7 +24,7 @@ def index():
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("SELECT nombre, nota1, nota2, nota3, ROUND((nota1 + nota2 + nota3)/3, 2) as promedio FROM estudiantes")
+        cursor.execute("SELECT nombre, nota1, nota2, nota3, ROUND((nota1 + nota2 + nota3)/3, 2) as promedio FROM alumnos")
         estudiantes = cursor.fetchall()
     except mysql.connector.Error as err:
         error = f"Error de base de datos: {err}"
@@ -64,7 +64,7 @@ def add_student():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute(
-            "INSERT INTO estudiantes (nombre, nota1, nota2, nota3) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO alumnos (nombre, nota1, nota2, nota3) VALUES (%s, %s, %s, %s)",
             (nombre, nota1, nota2, nota3)
         )
         conn.commit()
@@ -87,7 +87,7 @@ def view_students():
     try:
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
-        cursor.execute("SELECT nombre, nota1, nota2, nota3, ROUND((nota1 + nota2 + nota3)/3, 2) as promedio FROM estudiantes")
+        cursor.execute("SELECT nombre, nota1, nota2, nota3, ROUND((nota1 + nota2 + nota3)/3, 2) as promedio FROM alumnos")
         estudiantes = cursor.fetchall()
     except mysql.connector.Error as err:
         print(f"Error: {err}")
