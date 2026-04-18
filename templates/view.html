@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Alumnos</title>
+</head>
+<body>
+    <h1>Lista de Alumnos y Promedios</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Nota 1</th>
+                <th>Nota 2</th>
+                <th>Nota 3</th>
+                <th>Promedio</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for estudiante in estudiantes %}
+            <tr>
+                <td>{{ estudiante[0] }}</td>
+                <td>{{ estudiante[1] }}</td>
+                <td>{{ estudiante[2] }}</td>
+                <td>{{ estudiante[3] }}</td>
+                <td>{{ estudiante[4] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <br>
+    <a href="{{ url_for('index') }}">Volver al Inicio</a>
+</body>
+</html>
