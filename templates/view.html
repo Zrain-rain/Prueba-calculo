@@ -7,6 +7,7 @@
 </head>
 <body>
     <h1>Lista de Alumnos y Promedios</h1>
+    {% if estudiantes %}
     <table border="1">
         <thead>
             <tr>
@@ -29,6 +30,9 @@
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <p>No hay alumnos registrados aún.</p>
+    {% endif %}
     <br>
     <a href="{{ url_for('index') }}">Volver al Inicio</a>
 </body>
